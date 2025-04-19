@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"
+    android:padding="24dp">
+
+    <!-- Budget Input with Material TextInput -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilBudget"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter Monthly Budget"
+        android:paddingTop="75dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="#4CAF50"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etBudget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:padding="12dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Modern Material Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSetBudget"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Set Budget"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        app:cornerRadius="16dp"
+        app:backgroundTint="#4CAF50"
+        app:icon="@drawable/ic_check"
+        app:iconPadding="8dp"
+        app:iconGravity="textStart"
+        app:layout_constraintTop_toBottomOf="@id/tilBudget"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp" />
+
+    <!-- Styled Progress Bar -->
+    <ProgressBar
+        android:id="@+id/pbBudget"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:progressTint="#4CAF50"
+        android:progressBackgroundTint="#C8E6C9"
+        android:indeterminate="false"
+        app:layout_constraintTop_toBottomOf="@id/btnSetBudget"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- Budget Status Text -->
+    <TextView
+        android:id="@+id/tvBudgetStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Within Budget"
+        android:textSize="18sp"
+        android:textColor="#212121"
+        android:fontFamily="sans-serif-medium"
+        app:layout_constraintTop_toBottomOf="@id/pbBudget"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,3 @@
+{
+  "note": "Download a Lottie animation JSON file (e.g., a checkmark or success animation) from LottieFiles (https://lottiefiles.com/) and place it in res/raw/success.json. This file is used in AddTransactionDialog to show a success animation after saving a transaction."
+}
