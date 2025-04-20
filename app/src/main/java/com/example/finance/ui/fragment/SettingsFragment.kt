@@ -21,6 +21,7 @@ import com.example.finance.data.model.Transaction
 import com.example.finance.data.repository.TransactionRepository
 import com.example.finance.util.NotificationUtils
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.File
 
 /**
@@ -54,15 +55,13 @@ class SettingsFragment : Fragment() {
         // Backup and restore
         val btnExport = view.findViewById<Button>(R.id.btnExport)
         val btnImport = view.findViewById<Button>(R.id.btnImport)
+        
         btnExport.setOnClickListener {
             createFileLauncher.launch("finance_backup.json")
         }
 
-
         btnImport.setOnClickListener {
-            val transactions = restoreData()
-            transactions.forEach { transactionRepository.addTransaction(it) }
-            Toast.makeText(context, "Data restored", Toast.LENGTH_SHORT).show()
+            pickFileLauncher.launch("application/json")
         }
 
         // Notifications
@@ -86,30 +85,6 @@ class SettingsFragment : Fragment() {
         return view
     }
 
-    private fun exportData(transactions: List<Transaction>) {
-        val gson = Gson()
-        val json = gson.toJson(transactions)
-        try {
-            requireContext().openFileOutput("finance_backup.json", android.content.Context.MODE_PRIVATE).use {
-                it.write(json.toByteArray())
-            }
-            Toast.makeText(context, "Backup successful", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(context, "Backup failed", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun restoreData(): List<Transaction> {
-        try {
-            val json = requireContext().openFileInput("finance_backup.json").bufferedReader().use { it.readText() }
-            val gson = Gson()
-            return gson.fromJson(json, Array<Transaction>::class.java).toList()
-        } catch (e: Exception) {
-            Toast.makeText(context, "Restore failed", Toast.LENGTH_SHORT).show()
-            return emptyList()
-        }
-    }
-
     private val createFileLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -117,20 +92,60 @@ class SettingsFragment : Fragment() {
             exportToUri(it)
         }
     }
-    private fun exportToUri(uri: android.net.Uri) {
-        val transactions = transactionRepository.getAllTransactions()
-        val json = Gson().toJson(transactions)
 
-        try {
-            requireContext().contentResolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(json.toByteArray())
-                Toast.makeText(requireContext(), "Export successful", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
-            e.printStackTrace()
+    private val pickFileLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            importFromUri(it)
         }
     }
 
+    private fun exportToUri(uri: android.net.Uri) {
+        val transactions = transactionRepository.getAllTransactions()
+        val json = Gson().toJson(transactions)
+        try {
+            requireContext().contentResolver.openOutputStream(uri)?.use { outputStream ->
+                outputStream.write(json.toByteArray())
+            }
+            Toast.makeText(context, "Backup successful", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "Backup failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
+    private fun importFromUri(uri: android.net.Uri) {
+        try {
+            val json = requireContext().contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                ?: throw Exception("Failed to read file")
+            
+            val gson = Gson()
+            val type = object : TypeToken<List<Transaction>>() {}.type
+            val transactions = gson.fromJson<List<Transaction>>(json, type)
+            
+            if (transactions == null || transactions.isEmpty()) {
+                throw Exception("No valid transactions found in file")
+            }
+            
+            // Validate each transaction
+            transactions.forEach { transaction ->
+                if (transaction.title.isBlank() || 
+                    transaction.amount <= 0 || 
+                    transaction.category.isBlank() || 
+                    transaction.date.isBlank() || 
+                    (transaction.type != "Income" && transaction.type != "Expense")) {
+                    throw Exception("Invalid transaction data found")
+                }
+            }
+            
+            // Clear existing transactions and add imported ones
+            val existingTransactions = transactionRepository.getAllTransactions()
+            existingTransactions.forEach { transactionRepository.deleteTransaction(it) }
+            transactions.forEach { transactionRepository.addTransaction(it) }
+            
+            Toast.makeText(context, "Successfully imported ${transactions.size} transactions", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
 }

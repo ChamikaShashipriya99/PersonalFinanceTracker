@@ -5,14 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.RadioButton
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.example.finance.R
 import com.example.finance.data.model.Transaction
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -24,17 +25,18 @@ class AddTransactionDialog : DialogFragment() {
 
     var onSave: ((Transaction) -> Unit)? = null
     private var transactionToEdit: Transaction? = null
+    private lateinit var binding: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.dialog_add_transaction, container, false)
+        binding = view
 
         val etTitle = view.findViewById<TextInputEditText>(R.id.etTitle)
         val etAmount = view.findViewById<TextInputEditText>(R.id.etAmount)
         val spCategory = view.findViewById<Spinner>(R.id.spCategory)
-        val rbIncome = view.findViewById<RadioButton>(R.id.rbIncome)
-        val rbExpense = view.findViewById<RadioButton>(R.id.rbExpense)
+        val tgTransactionType = view.findViewById<MaterialButtonToggleGroup>(R.id.toggleGroup)
         val btnSave = view.findViewById<MaterialButton>(R.id.btnSave)
 
         // Populate categories
@@ -49,8 +51,10 @@ class AddTransactionDialog : DialogFragment() {
             etTitle.setText(transaction.title)
             etAmount.setText(transaction.amount.toString())
             spCategory.setSelection(categories.indexOf(transaction.category))
-            if (transaction.type == "Income") rbIncome.isChecked = true else rbExpense.isChecked = true
+            if (transaction.type == "Income") tgTransactionType.check(R.id.rbIncome) else tgTransactionType.check(R.id.rbExpense)
         }
+
+        setupTransactionTypeSelection()
 
         btnSave.setOnClickListener {
             val title = etTitle.text.toString()
@@ -73,7 +77,7 @@ class AddTransactionDialog : DialogFragment() {
                 amount = amount,
                 category = category,
                 date = date,
-                type = if (rbIncome.isChecked) "Income" else "Expense"
+                type = if (tgTransactionType.checkedButtonId == R.id.rbIncome) "Income" else "Expense"
             )
 
             onSave?.invoke(transaction)
@@ -99,5 +103,23 @@ class AddTransactionDialog : DialogFragment() {
      */
     fun setTransactionToEdit(transaction: Transaction) {
         this.transactionToEdit = transaction
+    }
+
+    private fun setupTransactionTypeSelection() {
+        val tgTransactionType = binding.findViewById<MaterialButtonToggleGroup>(R.id.toggleGroup)
+        val tilAmount = binding.findViewById<TextInputLayout>(R.id.tilAmount)
+        
+        tgTransactionType.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                when (checkedId) {
+                    R.id.rbIncome -> {
+                        tilAmount.setStartIconDrawable(R.drawable.ic_income)
+                    }
+                    R.id.rbExpense -> {
+                        tilAmount.setStartIconDrawable(R.drawable.ic_expense)
+                    }
+                }
+            }
+        }
     }
 }

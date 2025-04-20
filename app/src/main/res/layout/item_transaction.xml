@@ -4,23 +4,38 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp"
-    android:layout_margin="8dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:gravity="center_vertical">
 
-        <ImageView
-            android:id="@+id/categoryIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_food"
-            android:contentDescription="Category Icon" />
+        <!-- Category Icon -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E0E0"
+            app:strokeWidth="1dp">
 
+            <ImageView
+                android:id="@+id/categoryIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_food"
+                android:contentDescription="Category Icon"
+                app:tint="@color/primary" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Transaction Details -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -34,43 +49,54 @@
                 android:layout_height="wrap_content"
                 android:text="Lunch"
                 android:textSize="16sp"
-                android:textColor="#212121" />
+                android:textColor="#212121"
+                android:fontFamily="sans-serif-medium" />
 
             <TextView
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2025-04-16"
-                android:textSize="12sp"
-                android:textColor="#757575" />
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvAmount"
+        <!-- Amount and Actions -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="-$10.00"
-            android:textSize="16sp"
-            android:textColor="#F44336"
-            android:layout_gravity="center_vertical" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <ImageButton
-            android:id="@+id/btnEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_edit"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Edit Transaction"
-            android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/tvAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-$10.00"
+                android:textSize="16sp"
+                android:textColor="#F44336"
+                android:fontFamily="sans-serif-medium" />
 
-        <ImageButton
-            android:id="@+id/btnDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_delete"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Delete Transaction"
-            android:layout_marginStart="8dp" />
+            <ImageButton
+                android:id="@+id/btnEdit"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_edit"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit Transaction"
+                android:layout_marginStart="8dp"
+                app:tint="#757575" />
 
+            <ImageButton
+                android:id="@+id/btnDelete"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_delete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete Transaction"
+                android:layout_marginStart="8dp"
+                app:tint="#757575" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
