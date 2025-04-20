@@ -1,10 +1,12 @@
 package com.example.finance.data.repository
 
 import android.content.Context
+import android.os.Environment
 import com.example.finance.data.manager.PreferencesManager
 import com.example.finance.data.model.Transaction
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.io.File
 
 /**
  * Repository for managing transaction data.

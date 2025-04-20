@@ -1,5 +1,7 @@
 package com.example.finance.ui.fragment
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +12,8 @@ import android.widget.Spinner
 import android.widget.Switch
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.finance.R
 import com.example.finance.data.manager.PreferencesManager
@@ -51,8 +55,10 @@ class SettingsFragment : Fragment() {
         val btnExport = view.findViewById<Button>(R.id.btnExport)
         val btnImport = view.findViewById<Button>(R.id.btnImport)
         btnExport.setOnClickListener {
-            exportData(transactionRepository.getAllTransactions())
+            createFileLauncher.launch("finance_backup.json")
         }
+
+
         btnImport.setOnClickListener {
             val transactions = restoreData()
             transactions.forEach { transactionRepository.addTransaction(it) }
@@ -103,4 +109,28 @@ class SettingsFragment : Fragment() {
             return emptyList()
         }
     }
+
+    private val createFileLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let {
+            exportToUri(it)
+        }
+    }
+    private fun exportToUri(uri: android.net.Uri) {
+        val transactions = transactionRepository.getAllTransactions()
+        val json = Gson().toJson(transactions)
+
+        try {
+            requireContext().contentResolver.openOutputStream(uri)?.use { outputStream ->
+                outputStream.write(json.toByteArray())
+                Toast.makeText(requireContext(), "Export successful", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
+    }
+
+
 }

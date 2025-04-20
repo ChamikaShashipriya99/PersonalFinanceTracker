@@ -24,7 +24,7 @@ class PreferencesManager(context: Context) {
     }
 
     fun getCurrency(): String {
-        return sharedPreferences.getString(KEY_CURRENCY, "$") ?: "$"
+        return sharedPreferences.getString(KEY_CURRENCY, "LKR") ?: "LKR"
     }
 
     fun setMonthlyBudget(budget: Float) {

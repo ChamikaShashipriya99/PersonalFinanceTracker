@@ -64,9 +64,9 @@ class HomeFragment : Fragment() {
         val expenses = transactions.filter { it.type == "Expense" }.sumOf { it.amount }
         val savings = income - expenses
 
-        binding.tvIncome.text = "Income: ${preferencesManager.getCurrency()}${String.format("%.2f", income)}"
-        binding.tvExpenses.text = "Expenses: ${preferencesManager.getCurrency()}${String.format("%.2f", expenses)}"
-        binding.tvSavings.text = "Savings: ${preferencesManager.getCurrency()}${String.format("%.2f", savings)}"
+        binding.tvIncome.text = "Income: LKR. ${String.format("%.2f", income)}"
+        binding.tvExpenses.text = "Expenses: LKR. ${String.format("%.2f", expenses)}"
+        binding.tvSavings.text = "Savings: LKR. ${String.format("%.2f", savings)}"
     }
 
     private fun showAddTransactionDialog(transaction: Transaction?) {

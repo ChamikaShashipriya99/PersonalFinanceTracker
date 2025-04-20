@@ -46,6 +46,10 @@
         android:id="@+id/analyticsFragment"
         android:name="com.example.finance.ui.fragment.AnalyticsFragment"
         android:label="Analytics" />
+    <fragment
+        android:id="@+id/SettingsFragment"
+        android:name="com.example.finance.ui.fragment.SettingsFragment"
+        android:label="Settings" />
 
     <fragment
         android:id="@+id/profileFragment"

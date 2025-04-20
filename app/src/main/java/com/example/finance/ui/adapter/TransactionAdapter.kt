@@ -40,7 +40,7 @@ class TransactionAdapter(
         val transaction = transactions[position]
         holder.tvTitle.text = transaction.title
         holder.tvDate.text = transaction.date
-        holder.tvAmount.text = if (transaction.type == "Income") "+$${transaction.amount}" else "-$${transaction.amount}"
+        holder.tvAmount.text = if (transaction.type == "Income") "+LKR. ${transaction.amount}" else "-LKR. ${transaction.amount}"
         holder.tvAmount.setTextColor(
             if (transaction.type == "Income") Color.GREEN else Color.RED
         )
