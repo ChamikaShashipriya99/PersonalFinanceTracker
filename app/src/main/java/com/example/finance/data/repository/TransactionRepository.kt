@@ -52,7 +52,11 @@ class TransactionRepository(context: Context) {
         }
     }
 
-    private fun saveTransactions(transactions: List<Transaction>) {
+    /**
+     * Saves a list of transactions to SharedPreferences.
+     * @param transactions List of transactions to save.
+     */
+    fun saveTransactions(transactions: List<Transaction>) {
         val json = gson.toJson(transactions)
         preferencesManager.sharedPreferences.edit().putString(transactionsKey, json).apply()
     }
