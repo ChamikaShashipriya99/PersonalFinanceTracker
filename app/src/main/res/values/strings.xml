@@ -40,5 +40,6 @@
     <string name="income_lkr_0_00">Income: $0.00</string>
     <string name="expenses_lkr_0_00">Expenses: $0.00</string>
     <string name="savings_lkr_0_00">Savings: $0.00</string>
+    <string name="budget_lkr_0_00">Budget: $0.00</string>
     <string name="settings">Settings</string>
 </resources>

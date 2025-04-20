@@ -71,6 +71,16 @@
                 android:text="@string/savings_lkr_0_00"
                 android:textSize="18sp"
                 android:textColor="#2196F3"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvBudget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/budget_lkr_0_00"
+                android:textSize="18sp"
+                android:textColor="#9C27B0"
                 android:fontFamily="sans-serif-medium" />
         </LinearLayout>
 
