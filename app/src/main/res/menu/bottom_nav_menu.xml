@@ -16,12 +16,12 @@
         android:id="@+id/analyticsFragment"
         android:icon="@drawable/ic_analytics"
         android:title="Analytics" />
-    <item
-        android:id="@+id/SettingsFragment"
-        android:icon="@drawable/ic_settings"
-        android:title="Settings" />
 <!--    <item-->
-<!--        android:id="@+id/profileFragment"-->
-<!--        android:icon="@drawable/ic_profile"-->
-<!--        android:title="Profile" />-->
+<!--        android:id="@+id/SettingsFragment"-->
+<!--        android:icon="@drawable/ic_settings"-->
+<!--        android:title="Settings" />-->
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile" />
 </menu>
