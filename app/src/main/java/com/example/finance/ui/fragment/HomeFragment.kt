@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.finance.R
 import com.example.finance.data.manager.PreferencesManager
@@ -34,6 +35,12 @@ class HomeFragment : Fragment() {
         // Set personalized greeting
         val username = preferencesManager.getUsername() ?: "User"
         binding.tvGreeting.text = "Hello, $username!"
+        
+        // Add click listener to greeting text
+        binding.tvGreeting.setOnClickListener {
+            val navController = findNavController()
+            navController.navigate(R.id.action_homeFragment_to_profileFragment)
+        }
 
         // Initialize RecyclerView for all transactions
         adapter = TransactionAdapter(

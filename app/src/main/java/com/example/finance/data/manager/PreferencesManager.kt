@@ -36,11 +36,34 @@ class PreferencesManager(context: Context) {
     }
 
     fun saveUser(username: String, password: String) {
-        sharedPreferences.edit().putString("user_$username", password).apply()
+        val editor = sharedPreferences.edit()
+        editor.putString("user_$username", password)
+        editor.apply()
+    }
+
+    fun saveUserDetails(username: String, fullName: String, email: String, phone: String, address: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString("${username}_fullName", fullName)
+        editor.putString("${username}_email", email)
+        editor.putString("${username}_phone", phone)
+        editor.putString("${username}_address", address)
+        editor.apply()
     }
 
     fun getUserPassword(username: String): String? {
         return sharedPreferences.getString("user_$username", null)
+    }
+
+    fun getUserFullName(username: String): String? {
+        return sharedPreferences.getString("${username}_fullName", null)
+    }
+
+    fun getUserPhone(username: String): String? {
+        return sharedPreferences.getString("${username}_phone", null)
+    }
+
+    fun getUserAddress(username: String): String? {
+        return sharedPreferences.getString("${username}_address", null)
     }
 
     fun setLoggedIn(isLoggedIn: Boolean) {

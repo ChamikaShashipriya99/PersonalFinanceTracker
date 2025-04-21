@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.finance.R
@@ -30,18 +31,37 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
         }
 
+        // Set up logout button
+        binding.btnLogout.setOnClickListener {
+            logout()
+        }
+
         return binding.root
     }
 
     private fun loadProfile() {
         val username = preferencesManager.getUsername() ?: ""
+        val fullName = preferencesManager.getUserFullName(username) ?: ""
         val email = preferencesManager.getEmail() ?: ""
+        val phone = preferencesManager.getUserPhone(username) ?: ""
+        val address = preferencesManager.getUserAddress(username) ?: ""
         val password = preferencesManager.getUserPassword(username) ?: ""
 
         binding.etUsername.setText(username)
+        binding.etFullName.setText(fullName)
         binding.etEmail.setText(email)
+        binding.etPhone.setText(phone)
+        binding.etAddress.setText(address)
         binding.etPassword.setText(password)
         binding.etUsername.isEnabled = false // Username cannot be edited
+    }
+
+    private fun logout() {
+        preferencesManager.setLoggedIn(false)
+        preferencesManager.setUsername("")
+        preferencesManager.setEmail("")
+        Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
+        findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
     }
 
     override fun onDestroyView() {

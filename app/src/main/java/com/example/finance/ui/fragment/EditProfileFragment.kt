@@ -38,28 +38,39 @@ class EditProfileFragment : Fragment() {
 
     private fun loadProfile() {
         val username = preferencesManager.getUsername() ?: ""
+        val fullName = preferencesManager.getUserFullName(username) ?: ""
         val email = preferencesManager.getEmail() ?: ""
-        val password = preferencesManager.getUserPassword(username) ?: ""
+        val phone = preferencesManager.getUserPhone(username) ?: ""
+        val address = preferencesManager.getUserAddress(username) ?: ""
 
+        binding.etUsername.setText(username)
+        binding.etFullName.setText(fullName)
         binding.etEmail.setText(email)
-        binding.etPassword.setText(password)
+        binding.etPhone.setText(phone)
+        binding.etAddress.setText(address)
+        binding.etUsername.isEnabled = false // Username cannot be edited
     }
 
     private fun saveProfile() {
+        val username = preferencesManager.getUsername() ?: ""
+        val fullName = binding.etFullName.text.toString().trim()
         val email = binding.etEmail.text.toString().trim()
-        val password = binding.etPassword.text.toString().trim()
+        val phone = binding.etPhone.text.toString().trim()
+        val address = binding.etAddress.text.toString().trim()
 
+        binding.tilFullName.error = null
         binding.tilEmail.error = null
-        binding.tilPassword.error = null
+        binding.tilPhone.error = null
+        binding.tilAddress.error = null
 
         when {
+            fullName.isEmpty() -> binding.tilFullName.error = "Full name is required"
             email.isEmpty() -> binding.tilEmail.error = "Email is required"
             !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> binding.tilEmail.error = "Invalid email format"
-            password.isEmpty() -> binding.tilPassword.error = "Password is required"
-            password.length < 6 -> binding.tilPassword.error = "Password must be at least 6 characters"
+            phone.isEmpty() -> binding.tilPhone.error = "Phone number is required"
+            address.isEmpty() -> binding.tilAddress.error = "Address is required"
             else -> {
-                val username = preferencesManager.getUsername() ?: return
-                preferencesManager.saveUser(username, password)
+                preferencesManager.saveUserDetails(username, fullName, email, phone, address)
                 preferencesManager.setEmail(email)
                 Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(R.id.action_editProfileFragment_to_profileFragment)
