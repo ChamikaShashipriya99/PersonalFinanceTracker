@@ -53,12 +53,36 @@ class SettingsFragment : Fragment() {
 
         // Currency selection
         val spCurrency = view.findViewById<Spinner>(R.id.spCurrency)
-        val currencies = arrayOf("$", "€", "£", "₹")
+        val currencies = arrayOf(
+            "USD ($) - US Dollar",
+            "EUR (€) - Euro",
+            "GBP (£) - British Pound",
+            "JPY (¥) - Japanese Yen",
+            "CNY (¥) - Chinese Yuan",
+            "INR (₹) - Indian Rupee",
+            "AUD ($) - Australian Dollar",
+            "CAD ($) - Canadian Dollar",
+            "CHF (Fr) - Swiss Franc",
+            "SGD ($) - Singapore Dollar",
+            "NZD ($) - New Zealand Dollar",
+            "MXN ($) - Mexican Peso",
+            "BRL (R$) - Brazilian Real",
+            "RUB (₽) - Russian Ruble",
+            "KRW (₩) - South Korean Won",
+            "TRY (₺) - Turkish Lira",
+            "ZAR (R) - South African Rand",
+            "AED (د.إ) - UAE Dirham",
+            "SAR (﷼) - Saudi Riyal",
+            "MYR (RM) - Malaysian Ringgit"
+        )
         spCurrency.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, currencies)
-        spCurrency.setSelection(currencies.indexOf(preferencesManager.getCurrency()))
+        val currentCurrency = preferencesManager.getCurrency()
+        val currentIndex = currencies.indexOfFirst { it.startsWith(currentCurrency) }
+        spCurrency.setSelection(if (currentIndex >= 0) currentIndex else 0)
         spCurrency.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                preferencesManager.setCurrency(currencies[position])
+                val selectedCurrency = currencies[position].split(" ")[0] // Get the currency code (e.g., "USD")
+                preferencesManager.setCurrency(selectedCurrency)
             }
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
         })
