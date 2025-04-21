@@ -47,7 +47,6 @@ class ProfileFragment : Fragment() {
         val email = preferencesManager.getEmail() ?: ""
         val phone = preferencesManager.getUserPhone(username) ?: ""
         val address = preferencesManager.getUserAddress(username) ?: ""
-        val password = preferencesManager.getUserPassword(username) ?: ""
 
         // Load profile photo
         preferencesManager.getProfilePhoto(username)?.let { photoUri ->
@@ -62,7 +61,6 @@ class ProfileFragment : Fragment() {
         binding.etEmail.setText(email)
         binding.etPhone.setText(phone)
         binding.etAddress.setText(address)
-        binding.etPassword.setText(password)
         binding.etUsername.isEnabled = false // Username cannot be edited
     }
 
