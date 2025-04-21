@@ -1,21 +1,38 @@
 package com.example.finance.ui.fragment
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.finance.R
 import com.example.finance.databinding.FragmentRegisterBinding
 import com.example.finance.data.manager.PreferencesManager
+import com.bumptech.glide.Glide
 
 class RegisterFragment : Fragment() {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     private lateinit var preferencesManager: PreferencesManager
+    private var selectedPhotoUri: Uri? = null
+
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedPhotoUri = it
+            Glide.with(this)
+                .load(it)
+                .circleCrop()
+                .into(binding.ivProfilePhoto)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -26,6 +43,10 @@ class RegisterFragment : Fragment() {
         binding.btnRegister.setOnClickListener { validateAndRegister() }
         binding.tvLogin.setOnClickListener {
             findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+        }
+
+        binding.btnSelectPhoto.setOnClickListener {
+            pickImageLauncher.launch("image/*")
         }
 
         return binding.root
@@ -63,6 +84,9 @@ class RegisterFragment : Fragment() {
             else -> {
                 preferencesManager.saveUser(username, password)
                 preferencesManager.saveUserDetails(username, fullName, email, phone, address)
+                selectedPhotoUri?.let { uri ->
+                    preferencesManager.saveProfilePhoto(username, uri.toString())
+                }
                 preferencesManager.setUsername(username)
                 preferencesManager.setEmail(email)
                 Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT).show()

@@ -1,21 +1,37 @@
 package com.example.finance.ui.fragment
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.finance.R
 import com.example.finance.data.manager.PreferencesManager
 import com.example.finance.databinding.FragmentEditProfileBinding
+import com.bumptech.glide.Glide
 
 class EditProfileFragment : Fragment() {
 
     private var _binding: FragmentEditProfileBinding? = null
     private val binding get() = _binding!!
     private lateinit var preferencesManager: PreferencesManager
+    private var selectedPhotoUri: Uri? = null
+
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedPhotoUri = it
+            Glide.with(this)
+                .load(it)
+                .circleCrop()
+                .into(binding.ivProfilePhoto)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -33,6 +49,10 @@ class EditProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_editProfileFragment_to_profileFragment)
         }
 
+        binding.btnChangePhoto.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
+
         return binding.root
     }
 
@@ -42,6 +62,14 @@ class EditProfileFragment : Fragment() {
         val email = preferencesManager.getEmail() ?: ""
         val phone = preferencesManager.getUserPhone(username) ?: ""
         val address = preferencesManager.getUserAddress(username) ?: ""
+
+        // Load profile photo
+        preferencesManager.getProfilePhoto(username)?.let { photoUri ->
+            Glide.with(this)
+                .load(Uri.parse(photoUri))
+                .circleCrop()
+                .into(binding.ivProfilePhoto)
+        }
 
         binding.etUsername.setText(username)
         binding.etFullName.setText(fullName)
@@ -72,6 +100,9 @@ class EditProfileFragment : Fragment() {
             else -> {
                 preferencesManager.saveUserDetails(username, fullName, email, phone, address)
                 preferencesManager.setEmail(email)
+                selectedPhotoUri?.let { uri ->
+                    preferencesManager.saveProfilePhoto(username, uri.toString())
+                }
                 Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(R.id.action_editProfileFragment_to_profileFragment)
             }

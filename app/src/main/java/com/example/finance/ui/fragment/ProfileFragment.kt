@@ -1,5 +1,6 @@
 package com.example.finance.ui.fragment
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.finance.R
 import com.example.finance.data.manager.PreferencesManager
 import com.example.finance.databinding.FragmentProfileBinding
+import com.bumptech.glide.Glide
 
 class ProfileFragment : Fragment() {
 
@@ -46,6 +48,14 @@ class ProfileFragment : Fragment() {
         val phone = preferencesManager.getUserPhone(username) ?: ""
         val address = preferencesManager.getUserAddress(username) ?: ""
         val password = preferencesManager.getUserPassword(username) ?: ""
+
+        // Load profile photo
+        preferencesManager.getProfilePhoto(username)?.let { photoUri ->
+            Glide.with(this)
+                .load(Uri.parse(photoUri))
+                .circleCrop()
+                .into(binding.ivProfilePhoto)
+        }
 
         binding.etUsername.setText(username)
         binding.etFullName.setText(fullName)

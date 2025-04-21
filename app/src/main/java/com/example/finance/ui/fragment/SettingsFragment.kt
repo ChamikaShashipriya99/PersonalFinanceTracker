@@ -69,7 +69,7 @@ class SettingsFragment : Fragment() {
         
         btnExport.setOnClickListener {
             if (checkStoragePermission()) {
-                createFileLauncher.launch("finance_backup.json")
+            createFileLauncher.launch("finance_backup.json")
             }
         }
 
@@ -84,7 +84,7 @@ class SettingsFragment : Fragment() {
         swNotifications.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 if (checkNotificationPermission()) {
-                    NotificationUtils.scheduleDailyReminder(requireContext())
+                NotificationUtils.scheduleDailyReminder(requireContext())
                 } else {
                     swNotifications.isChecked = false
                 }

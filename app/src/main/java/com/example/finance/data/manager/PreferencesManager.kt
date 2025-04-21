@@ -18,6 +18,7 @@ class PreferencesManager(context: Context) {
         private const val KEY_USERNAME = "username"
         private const val KEY_EMAIL = "email"
         private const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
+        private const val KEY_PROFILE_PHOTO = "profile_photo"
     }
 
     fun setCurrency(currency: String) {
@@ -106,5 +107,13 @@ class PreferencesManager(context: Context) {
 
     fun updatePassword(username: String, newPassword: String) {
         saveUser(username, newPassword)
+    }
+
+    fun saveProfilePhoto(username: String, photoUri: String) {
+        sharedPreferences.edit().putString("${username}_${KEY_PROFILE_PHOTO}", photoUri).apply()
+    }
+
+    fun getProfilePhoto(username: String): String? {
+        return sharedPreferences.getString("${username}_${KEY_PROFILE_PHOTO}", null)
     }
 }
