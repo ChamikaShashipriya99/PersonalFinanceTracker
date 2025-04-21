@@ -60,4 +60,11 @@ class TransactionRepository(context: Context) {
         val json = gson.toJson(transactions)
         preferencesManager.sharedPreferences.edit().putString(transactionsKey, json).apply()
     }
+
+    /**
+     * Clears all transactions from the repository.
+     */
+    fun clearAllTransactions() {
+        saveTransactions(emptyList())
+    }
 }

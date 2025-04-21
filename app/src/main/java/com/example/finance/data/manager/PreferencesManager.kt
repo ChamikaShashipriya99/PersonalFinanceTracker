@@ -17,6 +17,7 @@ class PreferencesManager(context: Context) {
         private const val KEY_LOGGED_IN = "logged_in"
         private const val KEY_USERNAME = "username"
         private const val KEY_EMAIL = "email"
+        private const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
     }
 
     fun setCurrency(currency: String) {
@@ -88,5 +89,22 @@ class PreferencesManager(context: Context) {
 
     fun getEmail(): String? {
         return sharedPreferences.getString(KEY_EMAIL, null)
+    }
+
+    fun setBiometricEnabled(enabled: Boolean) {
+        sharedPreferences.edit().putBoolean(KEY_BIOMETRIC_ENABLED, enabled).apply()
+    }
+
+    fun isBiometricEnabled(): Boolean {
+        return sharedPreferences.getBoolean(KEY_BIOMETRIC_ENABLED, false)
+    }
+
+    fun verifyPassword(username: String, password: String): Boolean {
+        val storedPassword = getUserPassword(username)
+        return storedPassword == password
+    }
+
+    fun updatePassword(username: String, newPassword: String) {
+        saveUser(username, newPassword)
     }
 }

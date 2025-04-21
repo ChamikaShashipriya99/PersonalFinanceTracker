@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.mpandroidchart)
     implementation("com.airbnb.android:lottie:6.5.0")
     implementation(libs.gson)
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
