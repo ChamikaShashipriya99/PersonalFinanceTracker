@@ -2,6 +2,7 @@ package com.example.finance.ui.fragment
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -40,6 +42,14 @@ class SettingsFragment : Fragment() {
     private lateinit var transactionRepository: TransactionRepository
     private lateinit var budgetManager: BudgetManager
     private lateinit var executor: Executor
+
+    private val exportLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri?.let { exportToUri(it) }
+    }
+
+    private val importLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { restoreFromUri(it) }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -94,15 +104,12 @@ class SettingsFragment : Fragment() {
         val btnImport = view.findViewById<Button>(R.id.btnImport)
         
         btnExport.setOnClickListener {
-            if (checkStoragePermission()) {
-                exportToDownloads()
-            }
+            val fileName = "finance_backup_${getCurrentDateString()}.json"
+            exportLauncher.launch(fileName)
         }
 
         btnImport.setOnClickListener {
-            if (checkStoragePermission()) {
-                importFromDownloads()
-            }
+            importLauncher.launch(arrayOf("application/json"))
         }
 
         // Notifications
@@ -285,9 +292,8 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun exportToDownloads() {
+    private fun exportToUri(uri: Uri) {
         try {
-            val fileName = "finance_backup_${getCurrentDateString()}.json"
             val exportData = ExportData(
                 transactions = transactionRepository.getAllTransactions(),
                 budget = budgetManager.getBudget(),
@@ -298,53 +304,20 @@ class SettingsFragment : Fragment() {
             
             val json = Gson().toJson(exportData)
             
-            // Get the Downloads directory
-            val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
-            val file = File(downloadsDir, fileName)
+            requireContext().contentResolver.openOutputStream(uri)?.use { outputStream ->
+                outputStream.write(json.toByteArray())
+            }
             
-            // Write the file
-            file.writeText(json)
-            
-            Toast.makeText(context, "Backup saved to Downloads/$fileName", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Backup saved successfully", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Toast.makeText(context, "Backup failed: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun importFromDownloads() {
+    private fun restoreFromUri(uri: Uri) {
         try {
-            // Get the Downloads directory
-            val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
-            
-            // Find the most recent backup file
-            val backupFiles = downloadsDir.listFiles { file -> 
-                file.name.startsWith("finance_backup_") && file.extension == "json" 
-            }?.sortedByDescending { it.lastModified() }
-            
-            if (backupFiles.isNullOrEmpty()) {
-                Toast.makeText(context, "No backup files found in Downloads", Toast.LENGTH_SHORT).show()
-                return
-            }
-            
-            // Show dialog to select backup file
-            val fileNames = backupFiles.map { it.name }.toTypedArray()
-            
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Select Backup File")
-                .setItems(fileNames) { _, which ->
-                    val selectedFile = backupFiles[which]
-                    restoreFromFile(selectedFile)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        } catch (e: Exception) {
-            Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-    
-    private fun restoreFromFile(file: File) {
-        try {
-            val json = file.readText()
+            val json = requireContext().contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                ?: throw Exception("Could not read backup file")
             
             // Try to parse as new format first
             try {
@@ -381,36 +354,34 @@ class SettingsFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 // If parsing as ExportData fails, try old format
-            }
-            
-            // Try to parse as old format (just transactions)
-            val type = object : TypeToken<List<Transaction>>() {}.type
-            val transactions = Gson().fromJson<List<Transaction>>(json, type)
-            
-            if (transactions != null && transactions.isNotEmpty()) {
-                // Show confirmation dialog
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Restore Backup")
-                    .setMessage("This will replace all your current transactions with the backup data. Are you sure you want to continue?")
-                    .setPositiveButton("Restore") { _, _ ->
-                        // Clear existing transactions
-                        val existingTransactions = transactionRepository.getAllTransactions()
-                        existingTransactions.forEach { transactionRepository.deleteTransaction(it) }
-                        
-                        // Add imported transactions
-                        transactions.forEach { transactionRepository.addTransaction(it) }
-                        Toast.makeText(context, "Restore successful (old format)", Toast.LENGTH_SHORT).show()
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-            } else {
-                throw Exception("No valid transactions found in file")
+                val type = object : TypeToken<List<Transaction>>() {}.type
+                val transactions = Gson().fromJson<List<Transaction>>(json, type)
+                
+                if (transactions != null && transactions.isNotEmpty()) {
+                    // Show confirmation dialog
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Restore Backup")
+                        .setMessage("This will replace all your current transactions with the backup data. Are you sure you want to continue?")
+                        .setPositiveButton("Restore") { _, _ ->
+                            // Clear existing transactions
+                            val existingTransactions = transactionRepository.getAllTransactions()
+                            existingTransactions.forEach { transactionRepository.deleteTransaction(it) }
+                            
+                            // Add imported transactions
+                            transactions.forEach { transactionRepository.addTransaction(it) }
+                            Toast.makeText(context, "Restore successful (old format)", Toast.LENGTH_SHORT).show()
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                } else {
+                    throw Exception("No valid transactions found in file")
+                }
             }
         } catch (e: Exception) {
             Toast.makeText(context, "Restore failed: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-    
+
     private fun getCurrentDateString(): String {
         val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm", java.util.Locale.getDefault())
         return dateFormat.format(java.util.Date())
