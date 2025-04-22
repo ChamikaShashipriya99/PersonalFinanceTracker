@@ -38,6 +38,11 @@ class ProfileFragment : Fragment() {
             logout()
         }
 
+        // Set up back button
+        binding.btnBack.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_homeFragment)
+        }
+
         return binding.root
     }
 
