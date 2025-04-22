@@ -30,7 +30,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_food"
+                android:src="@drawable/ic_item"
                 android:contentDescription="Category Icon"
                 app:tint="@color/primary" />
         </com.google.android.material.card.MaterialCardView>

@@ -63,7 +63,7 @@
                     android:background="@drawable/circle_background"
                     android:contentDescription="Profile Photo"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_profile_placeholder" />
+                    android:src="@drawable/ic_profile" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSelectPhoto"
