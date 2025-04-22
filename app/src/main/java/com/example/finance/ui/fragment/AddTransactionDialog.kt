@@ -1,5 +1,6 @@
 package com.example.finance.ui.fragment
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -26,6 +28,8 @@ class AddTransactionDialog : DialogFragment() {
     var onSave: ((Transaction) -> Unit)? = null
     private var transactionToEdit: Transaction? = null
     private lateinit var binding: View
+    private val calendar = Calendar.getInstance()
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -36,6 +40,7 @@ class AddTransactionDialog : DialogFragment() {
         val etTitle = view.findViewById<TextInputEditText>(R.id.etTitle)
         val etAmount = view.findViewById<TextInputEditText>(R.id.etAmount)
         val spCategory = view.findViewById<Spinner>(R.id.spCategory)
+        val etDate = view.findViewById<TextInputEditText>(R.id.etDate)
         val tgTransactionType = view.findViewById<MaterialButtonToggleGroup>(R.id.toggleGroup)
         val btnSave = view.findViewById<MaterialButton>(R.id.btnSave)
 
@@ -46,11 +51,18 @@ class AddTransactionDialog : DialogFragment() {
         spCategory.adapter = adapter
         spCategory.setSelection(0)
 
+        // Set up date picker
+        etDate.setText(dateFormat.format(Date()))
+        etDate.setOnClickListener {
+            showDatePicker(etDate)
+        }
+
         // Pre-fill fields if editing
         transactionToEdit?.let { transaction ->
             etTitle.setText(transaction.title)
             etAmount.setText(transaction.amount.toString())
             spCategory.setSelection(categories.indexOf(transaction.category))
+            etDate.setText(transaction.date)
             if (transaction.type == "Income") tgTransactionType.check(R.id.rbIncome) else tgTransactionType.check(R.id.rbExpense)
         }
 
@@ -60,7 +72,7 @@ class AddTransactionDialog : DialogFragment() {
             val title = etTitle.text.toString()
             val amount = etAmount.text.toString().toDoubleOrNull()
             val category = spCategory.selectedItem.toString()
-            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            val date = etDate.text.toString()
 
             if (title.isEmpty()) {
                 etTitle.error = "Title is required"
@@ -86,6 +98,30 @@ class AddTransactionDialog : DialogFragment() {
         }
 
         return view
+    }
+
+    private fun showDatePicker(editText: TextInputEditText) {
+        val currentDate = editText.text.toString()
+        val parts = currentDate.split("-")
+        
+        if (parts.size == 3) {
+            calendar.set(Calendar.YEAR, parts[0].toInt())
+            calendar.set(Calendar.MONTH, parts[1].toInt() - 1)
+            calendar.set(Calendar.DAY_OF_MONTH, parts[2].toInt())
+        }
+        
+        DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, month)
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                editText.setText(dateFormat.format(calendar.time))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 
     override fun onStart() {
