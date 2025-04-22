@@ -54,6 +54,7 @@ class SettingsFragment : Fragment() {
         // Currency selection
         val spCurrency = view.findViewById<Spinner>(R.id.spCurrency)
         val currencies = arrayOf(
+
             "LKR (Rs) - Srilankan Rupees",
             "USD ($) - US Dollar",
             "EUR (€) - Euro",
