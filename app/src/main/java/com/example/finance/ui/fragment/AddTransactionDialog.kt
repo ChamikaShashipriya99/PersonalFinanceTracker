@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Spinner
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.example.finance.R
@@ -39,17 +39,15 @@ class AddTransactionDialog : DialogFragment() {
 
         val etTitle = view.findViewById<TextInputEditText>(R.id.etTitle)
         val etAmount = view.findViewById<TextInputEditText>(R.id.etAmount)
-        val spCategory = view.findViewById<Spinner>(R.id.spCategory)
+        val spCategory = view.findViewById<AutoCompleteTextView>(R.id.spCategory)
         val etDate = view.findViewById<TextInputEditText>(R.id.etDate)
         val tgTransactionType = view.findViewById<MaterialButtonToggleGroup>(R.id.toggleGroup)
         val btnSave = view.findViewById<MaterialButton>(R.id.btnSave)
 
         // Populate categories
         val categories = arrayOf("Food", "Transport", "Bills", "Entertainment", "Other")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spCategory.adapter = adapter
-        spCategory.setSelection(0)
+        val adapter = ArrayAdapter(requireContext(), R.layout.item_dropdown, categories)
+        spCategory.setAdapter(adapter)
 
         // Set up date picker
         etDate.setText(dateFormat.format(Date()))
@@ -61,7 +59,7 @@ class AddTransactionDialog : DialogFragment() {
         transactionToEdit?.let { transaction ->
             etTitle.setText(transaction.title)
             etAmount.setText(transaction.amount.toString())
-            spCategory.setSelection(categories.indexOf(transaction.category))
+            spCategory.setText(transaction.category, false)
             etDate.setText(transaction.date)
             if (transaction.type == "Income") tgTransactionType.check(R.id.rbIncome) else tgTransactionType.check(R.id.rbExpense)
         }
@@ -71,7 +69,7 @@ class AddTransactionDialog : DialogFragment() {
         btnSave.setOnClickListener {
             val title = etTitle.text.toString()
             val amount = etAmount.text.toString().toDoubleOrNull()
-            val category = spCategory.selectedItem.toString()
+            val category = spCategory.text.toString()
             val date = etDate.text.toString()
 
             if (title.isEmpty()) {
@@ -80,6 +78,10 @@ class AddTransactionDialog : DialogFragment() {
             }
             if (amount == null || amount <= 0) {
                 etAmount.error = "Enter a valid amount"
+                return@setOnClickListener
+            }
+            if (category.isEmpty()) {
+                spCategory.error = "Category is required"
                 return@setOnClickListener
             }
 
